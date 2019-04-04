@@ -70,3 +70,20 @@ class App extends Component {
 When you save the file your web browser will show a stack trace starting from the error we threw and our test should fail.
 
 Remove the error and everything should be quickly back to passing tests and a working web page, right before your eyes.
+
+Now that we're a bit comfortable with this we can now TDD some new functionality. We'd like to make a form where you can type the name of the person you want to greet and it'll send it back to you. 
+
+## Write the test first
+
+There's a few ways we could tackle this. The first thing i'd like to do is assert that our `App` component includes some kind of as of yet non-existent `HelloWorld` component. We dont want `App` being responsible for our business logic, we just want it to assemble our components ready for the user. This will then let us separately test and create our super useful `HelloWorld` component. 
+
+
+```tsx
+class HelloWorld extends Component {
+  render() {
+    return (
+      <p>Hello, world</p>
+    )
+  }
+}
+```
