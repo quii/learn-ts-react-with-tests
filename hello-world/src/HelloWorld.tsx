@@ -1,9 +1,13 @@
 import React from "react";
 
-export class HelloWorld extends React.Component<any, { name?: string }> {
+const initialHelloState = {name: "world"}
+type HelloState = Readonly<typeof initialHelloState>
+
+export class HelloWorld extends React.Component<any, HelloState> {
+
+    readonly state: HelloState = initialHelloState;
 
     render() {
-        const name = this.state != null ? this.state.name : "world";
         return (
             <>
                 <input
@@ -12,7 +16,7 @@ export class HelloWorld extends React.Component<any, { name?: string }> {
                         return this.setState({name: data.target.value});
                     }}
                 />
-                <h1>Hello, {name}</h1>
+                <h1>Hello, {this.state.name}</h1>
             </>
         )
     }

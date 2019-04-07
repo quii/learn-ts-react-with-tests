@@ -350,3 +350,36 @@ export class HelloWorld extends React.Component<any, { name?: string }> {
 ```
 
 The syntax for declaring a nullable type is shown in the declaration, you put a `?` on the field name. We then use the ternary operator at the start of render to calculate the `name` to greet.
+
+## Refactor III
+
+We hate nulls! It's the billion dollar mistake! There must be a more elegant way of modelling this and thankfully there is
+
+```typescript
+const initialHelloState = {name: "world"}
+type HelloState = Readonly<typeof initialHelloState>
+
+export class HelloWorld extends React.Component<any, HelloState> {
+
+    readonly state: HelloState = initialHelloState;
+
+    render() {
+        return (
+            <>
+                <input
+                    type="text"
+                    onChange={data => {
+                        return this.setState({name: data.target.value});
+                    }}
+                />
+                <h1>Hello, {this.state.name}</h1>
+            </>
+        )
+    }
+}
+```
+
+- `initialHelloState` describes how we want our initial default state to be. It's not hidden in a ternary operator inside the `render` method. This alone is an improvement from before!
+- An interesting feature of Typescript is you can derive types from data structures rather than always having to define them upfront. So `type HelloState = Readonly<typeof initialHelloState>` defines our type for our state which we then use when we define our `HelloWorld` component.
+- The `state` field in a React component is read-only for very good reasons. You should only try to change state via `setState` which will then kick off the component cycle for you (such as `render`). What we are doing with `readonly state: HelloState = initialHelloState;` is making sure from our TS code's perspective that state is readonly and that it's initial value is the one we want.
+- Now in `render` we can reliably read `this.state.name` and not have our code cluttered with null checks.
