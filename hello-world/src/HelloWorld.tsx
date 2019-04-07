@@ -12,7 +12,9 @@ export class HelloWorld extends React.Component<any, {name: string}> {
             <>
                 <input
                     type="text"
-                    onChange={data => this.setState({name: data.target.value})}
+                    onChange={data => {
+                        return this.setState({name: data.target.value});
+                    }}
                 />
                 <h1>Hello, {this.state.name}</h1>
             </>

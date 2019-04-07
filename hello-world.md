@@ -265,6 +265,63 @@ Actual   :Hello, world
 
 ## Write enough code to make it pass
 
+```typescript
+export class HelloWorld extends React.Component {
+
+    constructor(props: any) {
+        super(props);
+        this.state = {name: "world"}
+    }
+
+    render() {
+        return (
+            <>
+                <input
+                    type="text"
+                    onChange={data => {
+                        return this.setState({name: data.target.value});
+                    }}
+                />
+                <h1>Hello, {this.state.name}</h1>
+            </>
+        )
+    }
+}
+```
+
+Oof, a lot to unpack.
+
+### `constructor`, `props`, and `state`
+
+Our component has _state_ because it needs to keep track of who to greet. In order to set the state we override the constructor so when the component is first made we set the `name` to equal `world` (so "Hello, world")
+
+React components have the concept of `props`. Props are properties that are passed down to the component from the parent component. So hypothetically you could do 
+
+`<HelloWorld name="Clive" />`
+
+As we are introducing a constructor we have to make sure we call the `super` function of the class we are extending (`React.Component`) so we need to pass `props` through
+
+### `onChange` and the greeting
+
+We add an event handler to our `input` so that as keys are pressed we call `setState`, setting `state.name` with the value of the keys pressed. Calling `setState` on a React component will cause it to call `render` again if the state has changed.
+
+Our `h1` will always print the value of `state.name`, so as `setState` is called it will update itself to match whatever is in the state.
+
+The test should now pass.
 
 ## Refactor
+
+This is _ok_, but it's not very typesafe. If you have a well configured editor/IDE you may have some errors or warnings appearing even though the tests are passing.
+
+![Compilation problems](https://i.imgur.com/lvGnMwZ.png)
+
+The problem we have is our state doesn't have a well defined type. We _know_ it only ever holds a `name` field but it's not documented in our code. Someone can hypothetically make a typo typing `name` and introduce bugs. Plus our autocomplete does not work. 
+
+What we can do is more strictly define the type of our shape when we define our component
+
+```typescript
+export class HelloWorld extends React.Component<any, {name: string}>
+```
+
+The angled brackets mean that `React.Component` uses _generics_ so that we can optionally define the type of the component more narrowly. The first type `any` is for the "props" that we mentioned earlier. Our component doesn't use props so we dont care about it. The second syntax `{name: string}` is us defining our _interface_ for our state to have one field called name of type `string`.
 
