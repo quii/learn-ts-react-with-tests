@@ -325,3 +325,28 @@ export class HelloWorld extends React.Component<any, {name: string}>
 
 The angled brackets mean that `React.Component` uses _generics_ so that we can optionally define the type of the component more narrowly. The first type `any` is for the "props" that we mentioned earlier. Our component doesn't use props so we dont care about it. The second syntax `{name: string}` is us defining our _interface_ for our state to have one field called name of type `string`.
 
+## Refactor II
+
+Having to override the constructor just to set a default state doesn't feel right, although it was interesting to look at props. What we should do is change the way we model our component state to model the idea that the name is nullable. We can then just check if it's null and set it to world when neccessary
+
+```typescript
+export class HelloWorld extends React.Component<any, { name?: string }> {
+
+    render() {
+        const name = this.state != null ? this.state.name : "world";
+        return (
+            <>
+                <input
+                    type="text"
+                    onChange={data => {
+                        return this.setState({name: data.target.value});
+                    }}
+                />
+                <h1>Hello, {name}</h1>
+            </>
+        )
+    }
+}
+```
+
+The syntax for declaring a nullable type is shown in the declaration, you put a `?` on the field name. We then use the ternary operator at the start of render to calculate the `name` to greet.

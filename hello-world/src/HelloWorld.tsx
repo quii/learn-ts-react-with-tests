@@ -1,13 +1,9 @@
 import React from "react";
 
-export class HelloWorld extends React.Component<any, {name: string}> {
-
-    constructor(props: any) {
-        super(props);
-        this.state = {name: "world"}
-    }
+export class HelloWorld extends React.Component<any, { name?: string }> {
 
     render() {
+        const name = this.state != null ? this.state.name : "world";
         return (
             <>
                 <input
@@ -16,7 +12,7 @@ export class HelloWorld extends React.Component<any, {name: string}> {
                         return this.setState({name: data.target.value});
                     }}
                 />
-                <h1>Hello, {this.state.name}</h1>
+                <h1>Hello, {name}</h1>
             </>
         )
     }
