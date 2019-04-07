@@ -1,23 +1,15 @@
-import React from "react";
+import React, {FC, useState} from "react";
 
-const initialHelloState = {name: "world"}
-type HelloState = Readonly<typeof initialHelloState>
+const initialHelloProps = {name: "world"};
+type HelloProps = Readonly<typeof initialHelloProps>
 
-export class HelloWorld extends React.Component<any, HelloState> {
-
-    readonly state: HelloState = initialHelloState;
-
-    render() {
-        return (
-            <>
-                <input
-                    type="text"
-                    onChange={data => {
-                        return this.setState({name: data.target.value});
-                    }}
-                />
-                <h1>Hello, {this.state.name}</h1>
-            </>
-        )
-    }
+export const HelloWorld: FC = () => {
+    const [state, setState] = useState<HelloProps>(initialHelloProps);
+    return <>
+        <input
+            type="text"
+            onChange={data => setState({name: data.target.value})}
+        />
+        <h1>Hello, {state.name}</h1>
+    </>
 }

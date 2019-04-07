@@ -4,9 +4,9 @@ import {HelloWorld} from "./HelloWorld";
 
 class App extends Component {
   render() {
-    return (
+    return <>
       <HelloWorld />
-    );
+    </>;
   }
 }
 

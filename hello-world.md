@@ -383,3 +383,33 @@ export class HelloWorld extends React.Component<any, HelloState> {
 - An interesting feature of Typescript is you can derive types from data structures rather than always having to define them upfront. So `type HelloState = Readonly<typeof initialHelloState>` defines our type for our state which we then use when we define our `HelloWorld` component.
 - The `state` field in a React component is read-only for very good reasons. You should only try to change state via `setState` which will then kick off the component cycle for you (such as `render`). What we are doing with `readonly state: HelloState = initialHelloState;` is making sure from our TS code's perspective that state is readonly and that it's initial value is the one we want.
 - Now in `render` we can reliably read `this.state.name` and not have our code cluttered with null checks.
+
+### Refactor IV
+
+Typically one manages state with classes but everyone loves _functional programming_ right? State is managed by React in practice and the framework gives us ways to access it in ways that are manageable and testable. 
+
+> [Hooks are a new addition in React 16.8. They let you use state and other React features without writing a class.](https://reactjs.org/docs/hooks-intro.html)
+
+Let's give them a try! 
+
+```typescript
+import React, {FC, useState} from "react";
+
+const initialHelloProps = {name: "world"};
+type HelloProps = Readonly<typeof initialHelloProps>
+
+export const HelloWorld: FC = () => {
+    const [state, setState] = useState<HelloProps>(initialHelloProps);
+    return <>
+        <input
+            type="text"
+            onChange={data => setState({name: data.target.value})}
+        />
+        <h1>Hello, {state.name}</h1>
+    </>
+}
+```
+
+- We import `FC` or `FunctionComponent` which describes a function that returns a React component
+- We import `useState` which we use to create our state of type `HelloProps` for this instance of the component. It returns us two things, the current `state` and a `setState` function. 
+- That's it!
