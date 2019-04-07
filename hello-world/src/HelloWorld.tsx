@@ -1,10 +1,21 @@
-import React, {Component} from "react";
+import React from "react";
 
-export class HelloWorld extends Component {
+export class HelloWorld extends React.Component<any, {name: string}> {
 
-    static defaultGreeting = <h1>Hello, world</h1>;
+    constructor(props: any) {
+        super(props);
+        this.state = {name: "world"}
+    }
 
     render() {
-        return HelloWorld.defaultGreeting
+        return (
+            <>
+                <input
+                    type="text"
+                    onChange={data => this.setState({name: data.target.value})}
+                />
+                <h1>Hello, {this.state.name}</h1>
+            </>
+        )
     }
 }

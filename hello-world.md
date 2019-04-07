@@ -197,23 +197,6 @@ export class HelloWorld extends Component {
 }
 ```
 
-## Refactor
-
-There's not a lot to refactor but we have somewhat of a magic bit of markup that we could extract into a constant to tidy things up a little.
-
-```typescript
-import React, {Component} from "react";
-
-export class HelloWorld extends Component {
-    
-    static defaultGreeting = <h1>Hello, world</h1>;
-
-    render() {
-        return HelloWorld.defaultGreeting
-    }
-}
-```
-
 ## Write the test first
 
 Next we want to make it so if someone enters a name into a textbox that we greet them.
@@ -226,9 +209,62 @@ And dont forget our TS bindings
 
 `$ yarn add @types/react-test-renderer`
 
+Here's what our new test looks like
+
+```typescript
+import {configure, mount, shallow} from "enzyme";
+import {HelloWorld} from "./HelloWorld";
+import React from 'react'
+import Adapter from 'enzyme-adapter-react-16';
+
+configure({adapter: new Adapter()});
+
+// old test omitted ...
+
+it('greets someone', () => {
+    const wrapper = mount(<HelloWorld/>)
+
+    wrapper.find('input')
+        .simulate('change', {target: {value: 'Pepper'}})
+
+    expect(wrapper.find('h1').text()).toEqual('Hello, Pepper');
+})
+```
+
+We are "mounting" our component so that we can test it. We then simulate a dom change to an input box to send the name "Pepper" to it. Afterward we expect a `h1` with the greeting.
 
 ## Try to run the test
+
+We have been working with some imaginary markup so the test fails when we run it
+
+`Error: Method “simulate” is meant to be run on 1 node. 0 found instead.`
+
 ## Write the minimal amount of code for the test to run and check the failing test output
+
+Let's update the markup to include a text input to make more progress
+
+```typescript
+return (
+    <>
+        <input type="text"/>
+        <h1>Hello, world</h1>
+    </>
+)
+```
+
+Run the tests again and you should see a nicer failure
+
+```
+Expected value to equal:
+  "Hello, Pepper"
+Received:
+  "Hello, world"
+Expected :Hello, Pepper
+Actual   :Hello, world
+```
+
 ## Write enough code to make it pass
+
+
 ## Refactor
 
