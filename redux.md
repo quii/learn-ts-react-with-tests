@@ -244,8 +244,125 @@ We dried up the test data by creating `testManuscript`. We then used the `...` s
 
 Finally let's move the production code in to a separate file if you haven't already 
 
-## Repeat for new requirements
-## Wrapping up
+## Write the test first
+
+Hopefully you can see that although we hard-coded our reducer to "just" make the test pass it actually gave us space to do some small but important refactoring before introducing new behaviour. 
+
+This mindset is important, being in the state of failing tests should feel dangerous and uncomfortable so design your code and your tests so you can keep making small changes and constantly refactoring. If you refactor whilst your tests are red you can only rely on your brain to know you're doing the right thing. If the tests are _green_ and you're refactoring you know at least that you're not breaking behaviour.
+
+Now we have refactored and have our first passing test let's write a new test to force us away from a hardcoded result. We can do that by just copy and pasting our existing test and changing the manuscript.
+
+```typescript
+    test('create a different manuscript', () => {
+        const testManuscript = {title: "Cats are nice", abstract: "But leave around a lot of floof"}
+
+        const store = createStore(MSReducer, initialMSStore)
+        const action = {
+            type: "CREATE_MANUSCRIPT",
+            ...testManuscript
+        }
+        store.dispatch(action)
+
+        expect(store.getState().manuscripts[0]).toEqual(testManuscript)
+    })
+```
+
+## Try to run the test
+
+It should fail as we expect
+
+```
+  Object {
+-   "abstract": "But leave around a lot of floof",
+-   "title": "Cats are nice",
++   "abstract": "You can manage state with redux",
++   "title": "Redux is ok",
+  }
+```
+
+## Write enough code to make it pass
+
+We need to use the data from our `action` that we send through.
+
+```typescript
+export const MSReducer: Reducer<ManuscriptStore> = (state = initialMSStore, action: any) => ({
+    manuscripts: [{title: action.title, abstract: action.abstract}]
+})
+```
+
+This should make both our tests pass. You may have noticed this is still not really the final behaviour we want because when we send a create manuscript action it will actually overwrite the old one. 
+
+Again though, be strict and refactor first and then we'll write a new test.
+
+## Refactor
+
+In statically typed languages it's a rule of thumb that you should not write functions that accept `any` unless they truly can accept `any` value. This is because it has no type safety and results in a poor developer experience. As a user of `MSReducer` how do I know what an `action` is and what it should contain?
+
+Let's capture our `action` type. It's a convention for your actions to live inside a separate file or directory, so inside `actions.tsx`
+
+```typescript
+import {Manuscript} from "./redux";
+
+export enum ManuscriptAction {
+    CREATE_MANUSCRIPT
+}
+
+export interface CreateManuscriptAction {
+    type: typeof ManuscriptAction.CREATE_MANUSCRIPT
+    payload: Manuscript
+}
+
+export const createManuscript = (manuscript: Manuscript) => ({
+    type: ManuscriptAction.CREATE_MANUSCRIPT,
+    payload: manuscript
+})
+```
+
+- We're capturing the type of action in an enum `ManuscriptAction` to replace our repeated magic string
+- `CreateManuscriptAction` is the data type for our action
+- Conventionally you should create a convenience function to create actions, which in our case is `createManuscript`
+
+Now we can update our reducer. They should also live in a separate file/folder so create `reducers.tsx`, move the reducer inside it and then update it to use our new action type
+
+```typescript
+export const MSReducer: Reducer<ManuscriptStore, CreateManuscriptAction> = (state = initialMSStore, action: CreateManuscriptAction) => {
+    switch (action.type) {
+        case ManuscriptAction.CREATE_MANUSCRIPT:
+            return {manuscripts: [{title: action.payload.title, abstract: action.payload.abstract}]}
+    }
+}
+```
+
+Our reducer now explicitly operates on CreateManuscriptAction. Using the type system this way ensures things hang together and is an excellent thinking tool for deciding how to split apart your state, reducers and actions if your application gets bigger.
+
+Finally lets update both our tests so they use our new action helper `createManuscript`.
+
+```typescript
+describe('manuscript store', () => {
+
+    test('create manuscripts', () => {
+        const testManuscript = {title: "Redux is ok", abstract: "You can manage state with redux"}
+
+        const store = createStore(MSReducer, initialMSStore)
+        store.dispatch(createManuscript(testManuscript))
+
+        expect(store.getState().manuscripts[0]).toEqual(testManuscript)
+    })
+
+    test('create a different manuscript', () => {
+        const testManuscript = {title: "Cats are nice", abstract: "But leave around a lot of floof"}
+
+        const store = createStore(MSReducer, initialMSStore)
+        store.dispatch(createManuscript(testManuscript))
+
+        expect(store.getState().manuscripts[0]).toEqual(testManuscript)
+    })
+
+})
+```
+
+I hope you'd agree that our test reads a lot better now. If your tests are easy to write and read, chances are they are easy to integrate with other parts of your system too. 
+
 
 
 
