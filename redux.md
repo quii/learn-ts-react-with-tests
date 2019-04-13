@@ -206,6 +206,44 @@ If you run the test it should pass.
 
 ## Refactor
 
+The "idea" of a manuscript with its fields is repeated a number of times in the code. 
+
+Let's capture that idea to DRY up the code and make it more type-safe.
+
+```typescript
+interface Manuscript {
+    title: string
+    abstract: string
+}
+```
+
+Now we can refactor our code using this type
+
+```typescript
+interface ManuscriptStore {
+    manuscripts: Manuscript[]
+}
+```
+
+```typescript
+test('create manuscripts', () => {
+        const testManuscript = {title: "Redux is ok", abstract: "You can manage state with redux"}
+
+        const store = createStore(MSReducer, initialMSStore)
+        const action = {
+            type: "CREATE_MANUSCRIPT",
+            ...testManuscript
+        }
+        store.dispatch(action)
+
+        expect(store.getState().manuscripts[0]).toEqual(testManuscript)
+})
+```
+
+We dried up the test data by creating `testManuscript`. We then used the `...` syntax to include its fields in our `action` and then used it in our assertion.
+
+Finally let's move the production code in to a separate file if you haven't already 
+
 ## Repeat for new requirements
 ## Wrapping up
 
