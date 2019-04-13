@@ -144,7 +144,66 @@ Try again
 The problem is our state doesn't have a manuscripts array in its type. Right now the type of our store is `void & {}`.
 
 Let's fix that
+
+```typescript
+const initialMSStore = {
+    manuscripts: []
+}
+
+const MSReducer = (state = initialMSStore, action: any) => state
+
+describe('manuscript store', () => {
+    test('create manuscripts', () => {
+        const store = createStore(MSReducer, initialMSStore)
+        const action = {
+            type: "CREATE_MANUSCRIPT",
+            title: "Redux is ok",
+            abstract: "You can manage state with redux"
+        }
+        store.dispatch(action)
+
+        expect(store.getState().manuscripts[0]).toEqual({
+            title: "Redux is ok",
+            abstract: "You can manage state with redux"
+        })
+    })
+})
+```
+
+- By defining `initialMSStore` with a field `manuscripts` and sending it as our initial state when calling `createStore` it can now infer the type we want when we call `getState`.
+- When you call `createStore` and want to pass through an initial state you need to pass through something called a _reducer_. We'll get on to that later but you'll see we created `MSReducer` and you may be able to figure out from its definition what it does.
+
+With these changes the TS compiler completes and the tests fails how we would expect
+
+```
+Expected: {"abstract": "You can manage state with redux", "title": "Redux is ok"}
+Received: undefined
+```
+
 ## Write enough code to make it pass
+
+With redux _actions_ are sent to a store, just like how our test is doing. In order to manipulate the state redux applies _reducers_ to create a new state.
+
+We created an empty reducer to make the test compile, now we'll do _just enough code to make it pass_.
+
+```typescript
+const MSReducer: Reducer<ManuscriptStore> = (state = initialMSStore, action: any) => ({
+    manuscripts: [{title: "Redux is ok", abstract: "You can manage state with redux"}]
+})
+```
+
+We need to give TS a bit more type information so it can be sure we're doing things right. We wouldn't want an incorrectly typed reducer applying state transformations or bad things could happen. So we introduced an interface `ManuscriptStore`
+
+```typescript
+interface ManuscriptStore {
+    manuscripts: {title: string, abstract: string}[]
+}
+```
+
+We then hard-code the new state to be what we want from the test. This may seem counter-intuitive but we're _just trying to make the test pass_. We've done some important work in getting our types correct and this will motivate us to write another test to move the code forward.
+
+If you run the test it should pass. 
+
 ## Refactor
 
 ## Repeat for new requirements
