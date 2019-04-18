@@ -424,13 +424,12 @@ Now that we're happy with creating manuscripts we can move on to editing them. W
 ## Write the test first
 
 ```typescript
-test('can edit manuscript title', () => {
+test('can edit manuscripts', () => {
     const testManuscript = {title: "Cats are nice", abstract: "But leave around a lot of floof"}
     const testManuscriptV2 = {title: "Cats are the best", abstract: "no downsides whatsoever"}
     const store = newManuscriptStore()
 
     store.dispatch(createManuscript(testManuscript))
-
     store.dispatch(editManuscript(0, testManuscriptV2))
 
     expect(store.getState().manuscripts[0]).toEqual(testManuscriptV2)
