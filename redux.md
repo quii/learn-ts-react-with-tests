@@ -335,7 +335,7 @@ export const MSReducer: Reducer<ManuscriptStore, CreateManuscriptAction> = (stat
 
 Our reducer now explicitly operates on CreateManuscriptAction. Using the type system this way ensures things hang together and is an excellent thinking tool for deciding how to split apart your state, reducers and actions if your application gets bigger.
 
-Finally lets update both our tests so they use our new action helper `createManuscript`.
+Next lets update both our tests so they use our new action helper `createManuscript`.
 
 ```typescript
 describe('manuscript store', () => {
@@ -361,8 +361,91 @@ describe('manuscript store', () => {
 })
 ```
 
+One final refactor I'd like to do is make it so there is a convienience function to create a new, empty manuscript store.
+
+```typescript
+const newManuscriptStore = () => createStore(MSReducer, initialMSStore)
+```
+
+Finally update the tests to use this function and make sure it's still working.
+
 I hope you'd agree that our test reads a lot better now. If your tests are easy to write and read, chances are they are easy to integrate with other parts of your system too. 
 
+Our next iterative improvement is to handle storing multiple manuscripts. 
+
+## Write the test first
+
+```typescript
+test('create multiple manuscripts', () => {
+    const testManuscript = {title: "Cats are nice", abstract: "But leave around a lot of floof"}
+    const testManuscript2 = {title: "Dogs are ok", abstract: "They can be gud fren"}
+
+    const store = newManuscriptStore()
+    store.dispatch(createManuscript(testManuscript))
+    store.dispatch(createManuscript(testManuscript2))
+
+    expect(store.getState().manuscripts).toHaveLength(2)
+})
+```
+
+## Try to run the test
+
+```
+  ● manuscript store › create multiple manuscripts
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 2
+    Received length: 1
+    Received array:  [{"abstract": "They can be gud fren", "title": "Dogs are ok"}]
+```
+
+## Write enough code to make it pass
+
+Our reducer is passed the _previous state_ of the store so we just need to copy the old state's manuscripts and add the new one.
+
+```typescript
+export const MSReducer: Reducer<ManuscriptStore, CreateManuscriptAction> = (state = initialMSStore, action: CreateManuscriptAction) => {
+    switch (action.type) {
+        case ManuscriptAction.CREATE_MANUSCRIPT:
+            return {
+                manuscripts: [
+                    ...state.manuscripts,
+                    {title: action.payload.title, abstract: action.payload.abstract}
+                ]
+            }
+    }
+}
+```
+
+The important line is `...state.manuscripts` which is the spread operator so we can create a new array with the new manuscript defined afterward
+
+Now that we're happy with creating manuscripts we can move on to editing them. We dont have an ID as such to identify which manuscript to edit but for the sake of simplicity we'll just use the array index; this is not best practice for a real application!
 
 
+## Write the test first
 
+```typescript
+test('can edit manuscripts', () => {
+    const testManuscript = {title: "Cats are nice", abstract: "But leave around a lot of floof"}
+    const store = newManuscriptStore()
+
+    store.dispatch(createManuscript(testManuscript))
+    store.dispatch(editManuscript(0, {title: "Cats are the best"}))
+
+    expect(store.getState().manuscripts[0]).toEqual({title: "Cats are the best", abstract: "But leave around a lot of floof"})
+})
+```
+
+With TDD we get to imagine what we want our API to be through our test. We want to have a new action to dispatch called `editManuscript` where I can send an object of which fields I wish to change.
+ 
+## Try to run the test
+
+The TS compiler should complain that `editManuscript` does not exist.
+
+## Write the minimal amount of code for the test to run and check the failing test output
+
+Define an empty reducer function for `editManuscript so the test can run`
+
+## Write enough code to make it pass
+## Refactor
