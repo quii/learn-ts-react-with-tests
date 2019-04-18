@@ -1,7 +1,7 @@
 import {createStore} from "redux";
 import {initialMSStore} from "./redux";
 import {MSReducer} from "./reducers";
-import {createManuscript, CreateManuscriptAction, ManuscriptAction} from "./actions";
+import {createManuscript, editManuscript} from "./actions";
 
 describe('manuscript store', () => {
 
@@ -38,17 +38,14 @@ describe('manuscript store', () => {
 
     test('can edit manuscript title', () => {
         const testManuscript = {title: "Cats are nice", abstract: "But leave around a lot of floof"}
+        const testManuscriptV2 = {title: "Cats are the best", abstract: "no downsides whatsoever"}
         const store = newManuscriptStore()
 
         store.dispatch(createManuscript(testManuscript))
 
-        function editManuscript(index: number, changes: { title: string }) {
-            return {type: ManuscriptAction.CREATE_MANUSCRIPT, payload: {title: "blah", abstract: "lol"}};
-        }
+        store.dispatch(editManuscript(0, testManuscriptV2))
 
-        store.dispatch(editManuscript(0, {title: "Cats are the best"}))
-
-        expect(store.getState().manuscripts[0]).toEqual({title: "Cats are the best", abstract: "But leave around a lot of floof"})
+        expect(store.getState().manuscripts[0]).toEqual(testManuscriptV2)
     })
 
 })

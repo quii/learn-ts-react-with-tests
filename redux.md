@@ -253,18 +253,18 @@ This mindset is important, being in the state of failing tests should feel dange
 Now we have refactored and have our first passing test let's write a new test to force us away from a hardcoded result. We can do that by just copy and pasting our existing test and changing the manuscript.
 
 ```typescript
-    test('create a different manuscript', () => {
-        const testManuscript = {title: "Cats are nice", abstract: "But leave around a lot of floof"}
+test('create a different manuscript', () => {
+    const testManuscript = {title: "Cats are nice", abstract: "But leave around a lot of floof"}
 
-        const store = createStore(MSReducer, initialMSStore)
-        const action = {
-            type: "CREATE_MANUSCRIPT",
-            ...testManuscript
-        }
-        store.dispatch(action)
+    const store = createStore(MSReducer, initialMSStore)
+    const action = {
+        type: "CREATE_MANUSCRIPT",
+        ...testManuscript
+    }
+    store.dispatch(action)
 
-        expect(store.getState().manuscripts[0]).toEqual(testManuscript)
-    })
+    expect(store.getState().manuscripts[0]).toEqual(testManuscript)
+})
 ```
 
 ## Try to run the test
@@ -303,22 +303,20 @@ Let's capture our `action` type. It's a convention for your actions to live insi
 ```typescript
 import {Manuscript} from "./redux";
 
-export enum ManuscriptAction {
-    CREATE_MANUSCRIPT
-}
+export const CREATE_MANUSCRIPT = "CREATE_MANUSCRIPT"
 
 export interface CreateManuscriptAction {
-    type: typeof ManuscriptAction.CREATE_MANUSCRIPT
+    type: typeof CREATE_MANUSCRIPT
     payload: Manuscript
 }
 
 export const createManuscript = (manuscript: Manuscript) => ({
-    type: ManuscriptAction.CREATE_MANUSCRIPT,
+    type: CREATE_MANUSCRIPT,
     payload: manuscript
 })
 ```
 
-- We're capturing the type of action in an enum `ManuscriptAction` to replace our repeated magic string
+- We're capturing the type of action in a constant to replace our repeated magic string
 - `CreateManuscriptAction` is the data type for our action
 - Conventionally you should create a convenience function to create actions, which in our case is `createManuscript`
 
@@ -327,7 +325,7 @@ Now we can update our reducer. They should also live in a separate file/folder s
 ```typescript
 export const MSReducer: Reducer<ManuscriptStore, CreateManuscriptAction> = (state = initialMSStore, action: CreateManuscriptAction) => {
     switch (action.type) {
-        case ManuscriptAction.CREATE_MANUSCRIPT:
+        case CREATE_MANUSCRIPT:
             return {manuscripts: [{title: action.payload.title, abstract: action.payload.abstract}]}
     }
 }
@@ -426,18 +424,20 @@ Now that we're happy with creating manuscripts we can move on to editing them. W
 ## Write the test first
 
 ```typescript
-test('can edit manuscripts', () => {
+test('can edit manuscript title', () => {
     const testManuscript = {title: "Cats are nice", abstract: "But leave around a lot of floof"}
+    const testManuscriptV2 = {title: "Cats are the best", abstract: "no downsides whatsoever"}
     const store = newManuscriptStore()
 
     store.dispatch(createManuscript(testManuscript))
-    store.dispatch(editManuscript(0, {title: "Cats are the best"}))
 
-    expect(store.getState().manuscripts[0]).toEqual({title: "Cats are the best", abstract: "But leave around a lot of floof"})
+    store.dispatch(editManuscript(0, testManuscriptV2))
+
+    expect(store.getState().manuscripts[0]).toEqual(testManuscriptV2)
 })
 ```
 
-With TDD we get to imagine what we want our API to be through our test. We want to have a new action to dispatch called `editManuscript` where I can send an object of which fields I wish to change.
+With TDD we get to imagine what we want our API to be through our test. We want to have a new action to dispatch called `editManuscript` where I can send a new version of the manuscript.
  
 ## Try to run the test
 
@@ -448,7 +448,7 @@ The TS compiler should complain that `editManuscript` does not exist.
 Define an empty reducer function so the compiler can help us write more code. If you're using a fancy IDE like me it can try and generate the function for you
 
 ```typescript
-function editManuscript(index: number, changes: { title: string }) {
+function editManuscript(index: number, changes: { title: string, abstract: string }) {
     return {};
 }
 ```
@@ -473,4 +473,90 @@ function editManuscript(index: number, changes: { title: string }) {
 Now the code should compile and the test should fail. 
 
 ## Write enough code to make it pass
+
+We need to add a new action type
+
+```typescript
+export const EDIT_MANUSCRIPT = "EDIT_MANUSCRIPT"
+export const CREATE_MANUSCRIPT = "CREATE_MANUSCRIPT"
+```
+
+Create an interface for our new action
+
+```typescript
+export interface EditManuscriptAction {
+    type: typeof EDIT_MANUSCRIPT
+    id: number
+    payload: Manuscript
+}
+```
+
+Move our new function out of the test code (if you haven't already) and make it consistent with the other action
+
+```typescript
+export const editManuscript = (index: number, changes: Manuscript) => ({
+    type: EDIT_MANUSCRIPT,
+    payload: {title: "blah", abstract: "lol"}
+})
+```
+
+Next, our reducer currently only works against create manuscript actions
+
+```typescript
+export const MSReducer: Reducer<ManuscriptStore, CreateManuscriptAction> = (state = initialMSStore, action: CreateManuscriptAction) => {
+```
+
+We need to update the signature of our function to accommodate this, but in the actions file add a new type to encode what actions we support
+
+```typescript
+export type ManuscriptActionTypes = CreateManuscriptAction | EditManuscriptAction
+```
+
+This describes a _union_ type, of our action types. We can then use that type in the signature of our reducer
+
+```typescript
+export const MSReducer: Reducer<ManuscriptStore, ManuscriptActionTypes> = (state = initialMSStore, action: ManuscriptActionTypes) => {
+    switch (action.type) {
+        case CREATE_MANUSCRIPT:
+            return {
+                manuscripts: [
+                    ...state.manuscripts,
+                    {title: action.payload.title, abstract: action.payload.abstract}
+                ]
+            }
+        case EDIT_MANUSCRIPT:
+            return state
+    }
+}
+```
+
+We made a lot of changes so we're just returning the existing state so we can re-run the tests to make sure it still compiles.
+
+Check the test still runs and now we should update our `createEditAction` so that it correctly creates the edit action.
+
+````typescript
+export const editManuscript = (index: number, changes: Manuscript): ManuscriptActionTypes => ({
+    type: EDIT_MANUSCRIPT,
+    id: index,
+    payload: changes
+})
+````
+
+Now we can update our reducer to act on the action by adding a new `case` to the `switch`
+
+```typescript
+case EDIT_MANUSCRIPT:
+    const editAction: EditManuscriptAction = action
+
+    const newState = Object.assign({}, state)
+    newState.manuscripts[editAction.id] = editAction.payload
+    return newState
+```
+
+- We need to _cast_ the `action: ManuscriptActionTypes` into an `EditManuscriptAction` so we have access to the action data
+- Create a copy of the state for us to return
+- Update the manuscript at the correct index
+
+The test should now pass! 
+
 ## Refactor

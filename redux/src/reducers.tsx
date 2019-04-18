@@ -1,16 +1,22 @@
 import {Reducer} from "redux";
-import {CreateManuscriptAction, ManuscriptAction} from "./actions";
 import {initialMSStore, ManuscriptStore} from "./redux";
+import {CREATE_MANUSCRIPT, EDIT_MANUSCRIPT, EditManuscriptAction, ManuscriptActionTypes} from "./actions";
 
-export const MSReducer: Reducer<ManuscriptStore, CreateManuscriptAction> = (state = initialMSStore, action: CreateManuscriptAction) => {
+export const MSReducer: Reducer<ManuscriptStore, ManuscriptActionTypes> = (state = initialMSStore, action: ManuscriptActionTypes) => {
     switch (action.type) {
-        case ManuscriptAction.CREATE_MANUSCRIPT:
+        case CREATE_MANUSCRIPT:
             return {
                 manuscripts: [
                     ...state.manuscripts,
                     {title: action.payload.title, abstract: action.payload.abstract}
                 ]
             }
+        case EDIT_MANUSCRIPT:
+            const editAction: EditManuscriptAction = action
+
+            const newState = Object.assign({}, state)
+            newState.manuscripts[editAction.id] = editAction.payload
+            return newState
     }
 }
 
