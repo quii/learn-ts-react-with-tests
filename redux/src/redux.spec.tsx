@@ -1,7 +1,7 @@
 import {createStore} from "redux";
 import {initialMSStore} from "./redux";
 import {MSReducer} from "./reducers";
-import {createManuscript} from "./actions";
+import {createManuscript, CreateManuscriptAction, ManuscriptAction} from "./actions";
 
 describe('manuscript store', () => {
 
@@ -36,14 +36,19 @@ describe('manuscript store', () => {
         expect(store.getState().manuscripts).toHaveLength(2)
     })
 
-    // test('can edit manuscript title', () => {
-    //     const testManuscript = {title: "Cats are nice", abstract: "But leave around a lot of floof"}
-    //     const store = newManuscriptStore()
-    //
-    //     store.dispatch(createManuscript(testManuscript))
-    //     store.dispatch(editManuscript(0, {title: "Cats are the best"}))
-    //
-    //     expect(store.getState().manuscripts[0]).toEqual({title: "Cats are the best", abstract: "But leave around a lot of floof"})
-    // })
+    test('can edit manuscript title', () => {
+        const testManuscript = {title: "Cats are nice", abstract: "But leave around a lot of floof"}
+        const store = newManuscriptStore()
+
+        store.dispatch(createManuscript(testManuscript))
+
+        function editManuscript(index: number, changes: { title: string }) {
+            return {type: ManuscriptAction.CREATE_MANUSCRIPT, payload: {title: "blah", abstract: "lol"}};
+        }
+
+        store.dispatch(editManuscript(0, {title: "Cats are the best"}))
+
+        expect(store.getState().manuscripts[0]).toEqual({title: "Cats are the best", abstract: "But leave around a lot of floof"})
+    })
 
 })

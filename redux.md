@@ -445,7 +445,32 @@ The TS compiler should complain that `editManuscript` does not exist.
 
 ## Write the minimal amount of code for the test to run and check the failing test output
 
-Define an empty reducer function for `editManuscript so the test can run`
+Define an empty reducer function so the compiler can help us write more code. If you're using a fancy IDE like me it can try and generate the function for you
+
+```typescript
+function editManuscript(index: number, changes: { title: string }) {
+    return {};
+}
+```
+
+Re-run the compiler again and we get a different error
+
+```typescript
+src/redux.spec.tsx:49:24 - error TS2345: Argument of type '{}' is not assignable to parameter of type 'CreateManuscriptAction'.
+  Type '{}' is missing the following properties from type 'CreateManuscriptAction': type, payload
+```
+
+The fact that `CreateManuscriptAction` should make us feel a bit uneasy because we're doing a new action yet but we shouldn't be tempted to dive down the rabbit hole of defining new action types and such. When we're not compiling we must do whatever it takes to get ourselves back to "green" again. We can worry about this sort of thing when we have _working software backed by tests_.
+
+So for now, just do what the compiler asks.
+
+```typescript
+function editManuscript(index: number, changes: { title: string }) {
+    return {type: ManuscriptAction.CREATE_MANUSCRIPT, payload: {title: "blah", abstract: "lol"}};
+}
+```
+
+Now the code should compile and the test should fail. 
 
 ## Write enough code to make it pass
 ## Refactor
