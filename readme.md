@@ -16,3 +16,4 @@ So here we go.
 ## Table of contents
 
 - [Hello, world](hello-world.md)
+- [Redux](redux.md)
