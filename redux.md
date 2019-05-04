@@ -6,49 +6,11 @@ In this chapter we will learn redux as a standalone way of managing state, guide
 
 ## Setup
 
-- `$ npm init` to create a package.json
-- `$ npm i jest @types/jest ts-jest redux typescript -D` install typescript, redux and jest
-- Put the following in `jest.config.js`
+Even though we dont need React for this exercise we'll use create-react-app to get ourselves started as it's a simple way to get going
 
-```javascript
-module.exports = {
-  roots: ['<rootDir>/src'],
-  transform: {
-    '^.+\\.tsx?$': 'ts-jest',
-  },
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-}
-```
+Run `yarn create react-app redux --typescript`, cd into `redux` and then do `yarn add redux`
 
-- Put the following in `tsconfig.json`
-
-```json
-{
-  "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "lib": ["es2015"],
-    "strict": true,
-    "declaration": true,
-    "outDir": "dist",
-    "sourceMap": true
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
-}
-```
-
-- Edit `package.json` and edit scripts with
-
-```json
-"scripts": {
-    "test": "jest"
-  },
-```
-
-- `$ mkdir src`
-- Finally put the following in `src/redux.spec.tsx`
+Remove all the files inside `/src` and then add `redux.spec.tsx` and add the following
 
 ```typescript
 test('hello', () => {
@@ -56,7 +18,7 @@ test('hello', () => {
 })
 ```
 
-- Run the test through your IDE or with `npm run test` and you should have a simple passing test
+- Run the test through your IDE or with `yarn test` and you should have a simple passing test
 
 ## What to build? 
 
