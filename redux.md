@@ -2,15 +2,15 @@
 
 Redux isn't _that_ complicated but can be a bit much if you try to learn how to make it work with react at the same time. 
 
-In this chapter we will learn redux as a standalone way of managing state, guided with tests. This way you'll learn the important concepts that redux facilitates managing state. Once you're comfortable with these concepts integrating them into your react application will be easier
+In this chapter we will learn Redux as a standalone way of managing state, guided with tests. This way you'll learn the important concepts that Redux facilitates managing state. Once you're comfortable with these concepts integrating them into your react application will be easier
 
 ## Setup
 
 Even though we dont need React for this exercise we'll use create-react-app to get ourselves started as it's a simple way to get going
 
-Run `yarn create react-app redux --typescript`, cd into `redux` and then do `yarn add redux`
+Run `yarn create react-app Redux --typescript`, cd into `Redux` and then do `yarn add Redux`
 
-Remove all the files inside `/src` and then add `redux.spec.tsx` and add the following
+Remove all the files inside `/src` and then add `Redux.spec.tsx` and add the following
 
 ```typescript
 test('hello', () => {
@@ -22,7 +22,7 @@ test('hello', () => {
 
 ## What to build? 
 
-We're going to build a manuscript tracking system and redux is going to manage the state for us.  
+We're going to build a manuscript tracking system and Redux is going to manage the state for us.  
 
 Users can do the following
 
@@ -38,7 +38,7 @@ Users can do the following
 First test is to create a manuscript and then try and get it back again
 
 ```typescript
-import {createStore} from "redux";
+import {createStore} from "Redux";
 
 describe('manuscript store', () => {
     test('create manuscripts', () => {
@@ -46,13 +46,13 @@ describe('manuscript store', () => {
         const action = {
             type: "CREATE_MANUSCRIPT",
             title: "Redux is ok",
-            abstract: "You can manage state with redux"
+            abstract: "You can manage state with Redux"
         }
         store.dispatch(action)
 
         expect(store.getState().manuscripts[0]).toEqual({
             title: "Redux is ok",
-            abstract: "You can manage state with redux"
+            abstract: "You can manage state with Redux"
         })
     })
 
@@ -61,8 +61,8 @@ describe('manuscript store', () => {
 
 Some explanation
 
-- We are using `createStore` from redux to create a store.
-- With redux if you wish to change the state you send an "action" which will typically have a field of `type` to describe the type of the action and a payload of data.
+- We are using `createStore` from Redux to create a store. The store has various methods for us to work with it.
+- With Redux if you wish to change the state you send an "action" which will typically have a field of `type` to describe the type of the action and a payload of data. 
 - We then _dispatch_ the action to the store.
 - Finally we make an assertion on the store to see if the first (and only) manuscript in `getState` returns us what we sent in. 
 
@@ -74,7 +74,7 @@ The test shouldn't compile and if your editor/IDE is well configured it should'v
   ● Test suite failed to run
 
     TypeScript diagnostics (customize using `[jest-config].globals.ts-jest.diagnostics` option):
-    src/redux.spec.tsx:5:23 - error TS2554: Expected 1-3 arguments, but got 0.
+    src/Redux.spec.tsx:5:23 - error TS2554: Expected 1-3 arguments, but got 0.
 
     5         const store = createStore()
                             ~~~~~~~~~~~~~
@@ -93,11 +93,11 @@ const store = createStore(() => {})
 Try again
 
 ```
- FAIL  src/redux.spec.tsx
+ FAIL  src/Redux.spec.tsx
   ● Test suite failed to run
 
     TypeScript diagnostics (customize using `[jest-config].globals.ts-jest.diagnostics` option):
-    src/redux.spec.tsx:14:33 - error TS2339: Property 'manuscripts' does not exist on type 'void & {}'.
+    src/Redux.spec.tsx:14:33 - error TS2339: Property 'manuscripts' does not exist on type 'void & {}'.
 
     14         expect(store.getState().manuscripts[0]).toEqual({
                                        ~~~~~~~~~~~
@@ -120,13 +120,13 @@ describe('manuscript store', () => {
         const action = {
             type: "CREATE_MANUSCRIPT",
             title: "Redux is ok",
-            abstract: "You can manage state with redux"
+            abstract: "You can manage state with Redux"
         }
         store.dispatch(action)
 
         expect(store.getState().manuscripts[0]).toEqual({
             title: "Redux is ok",
-            abstract: "You can manage state with redux"
+            abstract: "You can manage state with Redux"
         })
     })
 })
@@ -138,19 +138,19 @@ describe('manuscript store', () => {
 With these changes the TS compiler completes and the tests fails how we would expect
 
 ```
-Expected: {"abstract": "You can manage state with redux", "title": "Redux is ok"}
+Expected: {"abstract": "You can manage state with Redux", "title": "Redux is ok"}
 Received: undefined
 ```
 
 ## Write enough code to make it pass
 
-With redux _actions_ are sent to a store, just like how our test is doing. In order to manipulate the state redux applies _reducers_ to create a new state.
+With Redux _actions_ are sent to a store, just like how our test is doing. In order to manipulate the state Redux applies _reducers_ to create a new state.
 
 We created an empty reducer to make the test compile, now we'll do _just enough code to make it pass_.
 
 ```typescript
 const MSReducer: Reducer<ManuscriptStore> = (state = initialMSStore, action: any) => ({
-    manuscripts: [{title: "Redux is ok", abstract: "You can manage state with redux"}]
+    manuscripts: [{title: "Redux is ok", abstract: "You can manage state with Redux"}]
 })
 ```
 
@@ -189,7 +189,7 @@ interface ManuscriptStore {
 
 ```typescript
 test('create manuscripts', () => {
-        const testManuscript = {title: "Redux is ok", abstract: "You can manage state with redux"}
+        const testManuscript = {title: "Redux is ok", abstract: "You can manage state with Redux"}
 
         const store = createStore(MSReducer, initialMSStore)
         const action = {
@@ -204,15 +204,15 @@ test('create manuscripts', () => {
 
 We dried up the test data by creating `testManuscript`. We then used the `...` syntax to include its fields in our `action` and then used it in our assertion.
 
-Finally let's move the production code in to a separate file if you haven't already 
-
-## Write the test first
+Finally let's move the production code in to a separate file if you haven't already.
 
 Hopefully you can see that although we hard-coded our reducer to "just" make the test pass it actually gave us space to do some small but important refactoring before introducing new behaviour. 
 
-This mindset is important, being in the state of failing tests should feel dangerous and uncomfortable so design your code and your tests so you can keep making small changes and constantly refactoring. If you refactor whilst your tests are red you can only rely on your brain to know you're doing the right thing. If the tests are _green_ and you're refactoring you know at least that you're not breaking behaviour.
+This mindset is important, being in the state of failing tests should feel dangerous and uncomfortable so design your code and your tests so you can keep making small changes and constantly refactoring. If you refactor whilst your tests are red you can only rely on your brain to know you're doing the right thing. If the tests are _green_ and you're refactoring you know at least that you're not breaking behaviour. 
 
-Now we have refactored and have our first passing test let's write a new test to force us away from a hardcoded result. We can do that by just copy and pasting our existing test and changing the manuscript.
+## Write the test first
+
+Now we have refactored and have our first passing test let's write a new test to force us away from a hardcoded result. We can do that by just copy and pasting our existing test and changing `testManuscript`.
 
 ```typescript
 test('create a different manuscript', () => {
@@ -237,7 +237,7 @@ It should fail as we expect
   Object {
 -   "abstract": "But leave around a lot of floof",
 -   "title": "Cats are nice",
-+   "abstract": "You can manage state with redux",
++   "abstract": "You can manage state with Redux",
 +   "title": "Redux is ok",
   }
 ```
@@ -263,7 +263,7 @@ In statically typed languages it's a rule of thumb that you should not write fun
 Let's capture our `action` type. It's a convention for your actions to live inside a separate file or directory, so inside `actions.tsx`
 
 ```typescript
-import {Manuscript} from "./redux";
+import {Manuscript} from "./Redux";
 
 export const CREATE_MANUSCRIPT = "CREATE_MANUSCRIPT"
 
@@ -301,7 +301,7 @@ Next lets update both our tests so they use our new action helper `createManuscr
 describe('manuscript store', () => {
 
     test('create manuscripts', () => {
-        const testManuscript = {title: "Redux is ok", abstract: "You can manage state with redux"}
+        const testManuscript = {title: "Redux is ok", abstract: "You can manage state with Redux"}
 
         const store = createStore(MSReducer, initialMSStore)
         store.dispatch(createManuscript(testManuscript))
@@ -329,7 +329,7 @@ const newManuscriptStore = () => createStore(MSReducer, initialMSStore)
 
 Finally update the tests to use this function and make sure it's still working.
 
-I hope you'd agree that our test reads a lot better now. If your tests are easy to write and read, chances are they are easy to integrate with other parts of your system too. 
+I hope you'd agree that our test reads a lot better now. If your tests are easy to write and read, chances are the code they are testing are easy to work with and integrate with the rest of your system too. 
 
 Our next iterative improvement is to handle storing multiple manuscripts. 
 
@@ -417,11 +417,13 @@ function editManuscript(index: number, changes: { title: string, abstract: strin
 Re-run the compiler again and we get a different error
 
 ```typescript
-src/redux.spec.tsx:49:24 - error TS2345: Argument of type '{}' is not assignable to parameter of type 'CreateManuscriptAction'.
+src/Redux.spec.tsx:49:24 - error TS2345: Argument of type '{}' is not assignable to parameter of type 'CreateManuscriptAction'.
   Type '{}' is missing the following properties from type 'CreateManuscriptAction': type, payload
 ```
 
-The fact that `CreateManuscriptAction` should make us feel a bit uneasy because we're doing a new action yet but we shouldn't be tempted to dive down the rabbit hole of defining new action types and such. When we're not compiling we must do whatever it takes to get ourselves back to "green" again. We can worry about this sort of thing when we have _working software backed by tests_.
+The fact that `CreateManuscriptAction` is being mentioned should make us feel a bit uneasy because we're doing a new action yet but we shouldn't be tempted to dive down the rabbit hole of defining new action types and such. 
+
+When we're not compiling we must do whatever it takes to get ourselves back to "green" again. We can worry about this sort of thing when we have _working software backed by tests_.
 
 So for now, just do what the compiler asks.
 
@@ -467,13 +469,13 @@ Next, our reducer currently only works against create manuscript actions
 export const MSReducer: Reducer<ManuscriptStore, CreateManuscriptAction> = (state = initialMSStore, action: CreateManuscriptAction) => {
 ```
 
-We need to update the signature of our function to accommodate this, but in the actions file add a new type to encode what actions we support
+We need to update the signature of our reducer to accommodate this, so in the actions file add a new type to encode what actions we support.
 
 ```typescript
 export type ManuscriptActionTypes = CreateManuscriptAction | EditManuscriptAction
 ```
 
-This describes a _union_ type, of our action types. We can then use that type in the signature of our reducer
+This describes a _union_ type, of our actions. We can then use that type in the signature of our reducer.
 
 ```typescript
 export const MSReducer: Reducer<ManuscriptStore, ManuscriptActionTypes> = (state = initialMSStore, action: ManuscriptActionTypes) => {
