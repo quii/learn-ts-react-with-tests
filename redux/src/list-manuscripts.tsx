@@ -1,4 +1,4 @@
-import React, {FC, useState} from "react";
+import React from "react";
 import {Manuscript, ManuscriptStore} from "./redux";
 import {connect} from "react-redux";
 

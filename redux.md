@@ -796,4 +796,43 @@ export default connect(mapStateToProps)(ListManuscripts)
     
 After making these changes you should see the table now has the item we've added. 
 
+### Sending actions from a React component
+
+We've seen how we can send data from our Redux store to a component and keep things nicely decoupled. In our tests we defined actions which helped us manipulate the state of the store combined with reducers.
+
+What we want to do now is create a component to add manuscripts which will use our action that we've already tested.
+
+Create a new file `add-manuscript.tsx` where we'll just get the markup sorted for now.
+
+```typescript
+import React from "react";
+
+export const AddManuscript = () => {
+    return <>
+        <h2>Add new manuscript</h2>
+        <label htmlFor={"title"}>Title</label>
+        <input type={"text"} id={"title"} />
+        <label htmlFor={"abstract"}>Abstract</label>
+        <input type={"abstract"} id={"abstract"} />
+        <button>Add</button>
+    </>
+}
+```
+
+Remember to add it as an element in our application
+
+```typescript
+class App extends Component {
+  render() {
+    return <>
+      <h1>Manuscript tracking system</h1>
+      <ListManuscripts />
+      <AddManuscript/>
+    </>;
+  }
+}
+```
+
+Now we need a way to dispatch an action when the user clicks `Add`.
+
 
