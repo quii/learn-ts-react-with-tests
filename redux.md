@@ -636,3 +636,5 @@ case DELETE_MANUSCRIPT:
                 manuscripts: state.manuscripts.filter((element, index) => index != action.id)
             }
 ```
+
+We've now created our **actions** and **reducers** which allow us to manage the state of a simple manuscript store and hopefully have a grasp of the basics around Redux. Now what we want to try and do is wire our code up to a web application with React which will hopefully demonstrate how with a little boilerplate Redux allows us to nicely separate our concerns from the presentation logic. 
