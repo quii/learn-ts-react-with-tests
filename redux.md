@@ -637,11 +637,19 @@ case DELETE_MANUSCRIPT:
             }
 ```
 
+## Using Redux with React
+
 We've now created our **actions** and **reducers** which allow us to manage the state of a simple manuscript store and hopefully have a grasp of the basics around Redux. Now what we want to try and do is wire our code up to a web application with React which should demonstrate how with a little boilerplate Redux allows us to nicely separate our concerns from the presentation logic.
 
-For the sake of brevity we wont test drive the React part as we have other chapters for this, we'll just see how to snap Redux and React together
+For the sake of brevity we wont test drive the React part as we have other chapters for this, we'll just see how to snap Redux and React together.
 
-Add an `index.tsx` with the following inside
+### Some plumbing 
+
+You'll need to install `react-redux` as a dependency. This package lets us stick these two things together!
+
+`yarn add react-redux @types/react-redux`
+
+Next, add an `index.tsx` with the following inside
 
 ```typescript
 import React from 'react';
@@ -668,3 +676,124 @@ export default App;
 ```
 
 If you then run `yarn start` and visit [http://localhost:3000](localhost:3000) you should see our heading. 
+
+In order for the components in our application gain access to our store we need to wrap it in a `Provider`. Change `index.tsx` to the following.
+
+```typescript
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import {createStore} from "redux";
+import {MSReducer} from "./reducers";
+import {initialMSStore} from "./redux";
+import {createManuscript} from "./actions";
+import { Provider } from 'react-redux'
+
+const store = createStore(MSReducer, initialMSStore)
+store.dispatch(createManuscript({title: "This is just a test manuscript", abstract: "Wow great content"}))
+
+ReactDOM.render(
+    <Provider store={store}>
+    <App />
+    </Provider>,
+    document.getElementById('root')
+);
+```
+
+- We've imported the code we've written to create our store with our reducer and our initial state
+- For the sake of setting up the data we've manually dispatched an action to the store to adfd some test data.
+- We wrap our `App` component in a `Provider` which will give access to our store. 
+
+### A manuscipt list component
+
+Let's create a new file called `list-manuscripts.tsx` and create a simple react component to render manuscripts.
+
+```typescript
+import {Manuscript} from "./redux";
+
+interface ListManuscriptProps {
+    manuscripts: Manuscript[]
+}
+
+export const ListManuscripts = (props: ListManuscriptProps) => {
+    return <>
+        <table>
+            <thead>
+                <th>Title</th>
+                <th>Abstract</th>
+            </thead>
+            <tbody>
+            {props.manuscripts.map(m => <tr><td>{m.title}</td><td>{m.abstract}</td><tr/>)}
+            </tbody>
+        </table>
+    </>
+}
+
+ListManuscripts.defaultProps = {manuscripts: []}
+```
+
+- Define our props for the interface in terms of simple data types
+- Create a table and just a `tr` for each manuscript
+
+Now we need add it into our `App`.
+
+```typescript
+class App extends Component {
+  render() {
+    return <>
+      <h1>Manuscript tracking system</h1>
+      <ListManuscripts />
+    </>;
+  }
+}
+```
+
+If you check the web page it should show the table headings but no data. So how do we get data from our store into the `props` of our component?
+
+This is where `react-redux` comes in again. What we need to do is _map our state to props_
+
+We have to tell the framework how to do this, with a simple function. We then _connect_ that function to our component. 
+
+This may all feel a bit abstract but should become clear with some code, so here is the updated `list-manuscripts.tsx`
+
+```typescript
+import React, {FC, useState} from "react";
+import {Manuscript, ManuscriptStore} from "./redux";
+import {connect} from "react-redux";
+
+interface ListManuscriptProps {
+    manuscripts: Manuscript[]
+}
+
+const ListManuscripts = (props: ListManuscriptProps) => {
+    return <>
+        <table>
+            <thead>
+                <th>Title</th>
+                <th>Abstract</th>
+            </thead>
+            <tbody>
+            {props.manuscripts.map(m => <><td>{m.title}</td><td>{m.abstract}</td></>)}
+            </tbody>
+        </table>
+    </>
+}
+
+ListManuscripts.defaultProps = {manuscripts: []}
+
+const mapStateToProps = (state: ManuscriptStore) => ({
+    manuscripts: state.manuscripts
+})
+
+export default connect(mapStateToProps)(ListManuscripts)
+```
+
+- We've defined a `mapStateToProps` function which is responsible for taking our store's state and converting it to the datatype that our props are for our component. 
+    - This lets us decouple the data model of our state from the way we want data to be sent to our component
+    - This lets us test our component completely isolated from _how_ the data gets to it
+- We use the `connect` function which allows us to connect this function with our component and we export that for our `App` to use.
+    - In a real system, you'd probably still want to export the unconnected React component so that you can test it.
+    
+After making these changes you should see the table now has the item we've added. 
+
+
