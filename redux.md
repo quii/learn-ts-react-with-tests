@@ -637,4 +637,34 @@ case DELETE_MANUSCRIPT:
             }
 ```
 
-We've now created our **actions** and **reducers** which allow us to manage the state of a simple manuscript store and hopefully have a grasp of the basics around Redux. Now what we want to try and do is wire our code up to a web application with React which should demonstrate how with a little boilerplate Redux allows us to nicely separate our concerns from the presentation logic. 
+We've now created our **actions** and **reducers** which allow us to manage the state of a simple manuscript store and hopefully have a grasp of the basics around Redux. Now what we want to try and do is wire our code up to a web application with React which should demonstrate how with a little boilerplate Redux allows us to nicely separate our concerns from the presentation logic.
+
+For the sake of brevity we wont test drive the React part as we have other chapters for this, we'll just see how to snap Redux and React together
+
+Add an `index.tsx` with the following inside
+
+```typescript
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+ReactDOM.render(<App />, document.getElementById('root'));
+``` 
+
+And then create an `App.tsx`
+
+```typescript
+import React, { Component } from 'react';
+
+class App extends Component {
+  render() {
+    return <>
+      <h1>Manuscript tracking system</h1>
+    </>;
+  }
+}
+
+export default App;
+```
+
+If you then run `yarn start` and visit [http://localhost:3000](localhost:3000) you should see our heading. 
