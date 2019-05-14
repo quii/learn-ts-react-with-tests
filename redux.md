@@ -31,7 +31,6 @@ Users can do the following
 - Publish a manuscript
 - Delete a manuscript
 - List manuscripts
-- Get a manuscript by id
 
 ## Write the test first
 
@@ -522,4 +521,118 @@ case EDIT_MANUSCRIPT:
 
 The test should now pass! 
 
-## Refactor
+Now we want to work on **deleting manuscripts**
+
+
+## Write the test first
+
+Just to re-emphasise, by writing a test first it lets us
+- Imagine how we want the API to be
+- Experience what failure looks like in case of regressions. We make sure that our failing tests clearly illustrate _what is wrong_
+- Get feedback on whether our code change enacts the behaviour we want
+
+```typescript
+    it('can delete manuscripts', () => {
+        const testManuscript = {title: "Redux is ok", abstract: "You can manage state with redux"}
+
+        const store = newManuscriptStore()
+        store.dispatch(createManuscript(testManuscript))
+        store.dispatch(deleteManuscript(0))
+
+        expect(store.getState().manuscripts).toHaveLength(0)
+    })
+```
+
+## Try to run the test
+
+```
+ReferenceError: deleteManuscript is not defined
+
+  53 |         const store = newManuscriptStore()
+  54 |         store.dispatch(createManuscript(testManuscript))
+> 55 |         store.dispatch(deleteManuscript(0))
+     |               ^
+  56 | 
+  57 |         expect(store.getState().manuscripts[0]).toEqual(testManuscript)
+  58 |     })
+
+```
+
+## Write the minimal amount of code for the test to run and check the failing test output
+
+We have not yet defined `deleteManuscript` so in the same file as `createManuscript` let's write _just enough code to make the test pass_. 
+
+Describe our new action in an interface.
+
+```typescript
+interface DeleteManuscriptAction {
+    type: typeof DELETE_MANUSCRIPT
+    id: number
+}
+```
+
+Update our `ManuscriptActionTypes` to include our new action.
+
+```typescript
+export type ManuscriptActionTypes = CreateManuscriptAction | EditManuscriptAction | DeleteManuscriptAction
+```
+
+Finally create our `deleteManuscript` function which creates an instance of our action.
+
+```typescript
+export const deleteManuscript = (id: number): ManuscriptActionTypes => ({
+    type: DELETE_MANUSCRIPT,
+    id,
+})
+```
+
+This is enough to make the test compile and run but you'll get a strange error. 
+
+```
+TypeError: Cannot read property 'manuscripts' of undefined
+
+  55 |         store.dispatch(deleteManuscript(0))
+  56 | 
+> 57 |         expect(store.getState().manuscripts).toHaveLength(0)
+     |                ^
+  58 |     })
+  59 | 
+  60 | })
+```
+
+This is because our code doesn't handle the new type of action so therefore it returns undefined. 
+
+Let's give a default implementation for our new action type to get a better error message
+
+```typescript
+export const MSReducer: Reducer<ManuscriptStore, ManuscriptActionTypes> = (state = initialMSStore, action: ManuscriptActionTypes) => {
+    switch (action.type) {
+        case CREATE_MANUSCRIPT:
+            //etc
+        case EDIT_MANUSCRIPT:
+            //etc
+        case DELETE_MANUSCRIPT:
+            return state
+    }
+}
+```
+
+This way we're "handling" the new action by just returning the current state, it makes no changes. Now the test should be failing as we'd hope.
+
+```
+expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 1
+```
+
+## Write enough code to make it pass
+
+We can use the `filter` method on collections to filter by index
+
+```typescript
+case DELETE_MANUSCRIPT:
+            return {
+                manuscripts: state.manuscripts.filter((element, index) => index != action.id)
+            }
+```
