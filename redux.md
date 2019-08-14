@@ -773,7 +773,7 @@ const ListManuscripts = (props: ListManuscriptProps) => {
                 <th>Abstract</th>
             </thead>
             <tbody>
-            {props.manuscripts.map(m => <><td>{m.title}</td><td>{m.abstract}</td></>)}
+            {props.manuscripts.map(m => <tr><td>{m.title}</td><td>{m.abstract}</td><tr/>)}
             </tbody>
         </table>
     </>
@@ -833,6 +833,52 @@ class App extends Component {
 }
 ```
 
-Now we need a way to dispatch an action when the user clicks `Add`.
+Now we need a way to dispatch an action when the user clicks `Add`. Like state, we need a way of telling redux to send our actions to our component through the props so it can be used.
 
+Here is the complete code
+
+```typescript jsx
+import React, {FC, useState} from "react";
+import {createManuscript} from "./actions";
+import {connect} from "react-redux";
+import {Dispatch} from "redux";
+
+const defaultProps = {
+    add: (title: string, abtract: string) => {}
+}
+type AddManuscriptProps = Readonly<typeof defaultProps>
+
+const AddManuscript: FC<AddManuscriptProps> = (props) => {
+    const [title, setTitle] = useState('')
+    const [abstract, setAbstract] = useState('')
+    return <>
+        <h2>Add new manuscript</h2>
+        <label htmlFor={"title"}>Title</label>
+        <input type={"text"} id={"title"} onChange={e => setTitle(e.target.value)} />
+        <label htmlFor={"abstract"}>Abstract</label>
+        <input type={"abstract"} id={"abstract"} onChange={e => setAbstract(e.target.value)} />
+        <button onClick={() => props.add(title, abstract)}>Add</button>
+    </>
+}
+
+AddManuscript.defaultProps = defaultProps
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+    return {
+        add: (title: string, abstract: string) => dispatch(createManuscript({title, abstract})),
+    }
+}
+
+export default connect(null, mapDispatchToProps)(AddManuscript)
+```
+
+- Our props for `AddManuscript` just needs one thing, a function to add a manuscript which we define in `defaultProps`. We derive a type from that and set that as the type of our component: `FC<AddManuscriptProps>`
+- As the user types data we need to store it for later use so we use `useState` like we did from the first chapter to help us manage state. You can see how we use `setTitle` on the `onChange` handlers for our inputs.
+- We use the `add` function from our props when the user clicks the button
+
+Notice again how well decoupled this is. Our component is unaware of redux with its actions and reducers etc. It just takes a function that it calls. It has no idea what happens to the data and it shouldn't have to; which again makes it simple to test.
+
+We do need to do some work to make our component work with our redux work though.
+
+Rather than mapping _state_ to props, this time we are mapping _dispatch_ to props. We return our `props` object with the add function that we need and we map that to our `createManuscript` action we defined before. We then use `connect` again to finish up the wiring.
 

@@ -14,7 +14,7 @@ const ListManuscripts = (props: ListManuscriptProps) => {
                 <th>Abstract</th>
             </thead>
             <tbody>
-            {props.manuscripts.map(m => <><td>{m.title}</td><td>{m.abstract}</td></>)}
+            {props.manuscripts.map(m => <tr><td>{m.title}</td><td>{m.abstract}</td></tr>)}
             </tbody>
         </table>
     </>

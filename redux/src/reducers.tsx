@@ -22,7 +22,7 @@ export const MSReducer: Reducer<ManuscriptStore, ManuscriptActionTypes> = (state
             return newState
         case DELETE_MANUSCRIPT:
             return {
-                manuscripts: state.manuscripts.filter((element, index) => index != action.id)
+                manuscripts: state.manuscripts.filter((element, index) => index !== action.id)
             }
     }
 

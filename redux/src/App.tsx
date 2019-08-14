@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ListManuscripts from "./list-manuscripts";
-import {AddManuscript} from "./add-manuscript";
+import AddManuscript from "./add-manuscript";
 
 class App extends Component {
   render() {

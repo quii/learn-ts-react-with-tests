@@ -10,7 +10,7 @@ You'll need the node world with nvm, node, yarn, etc etc installed and sorted ou
 
 Run `yarn create react-app hello-world --typescript`
 
-This will use [create-react-app](https://facebook.github.io/create-react-app) which is sets us up with a myriad of tooling to explore the React world with TypeScript. It's fantastic for learning and prototyping. 
+This will use [create-react-app](https://facebook.github.io/create-react-app) which sets us up with a myriad of tooling to explore the React world with TypeScript. It's fantastic for learning and prototyping. 
 
 You should have a folder called `hello-world`, `cd` into it and run `yarn test`. You should get some options as to what tests you want to run, quitting the program etc, press `a` to run all the tests as directed.
 
@@ -181,7 +181,7 @@ it('renders a default hello message on creation', () => {
 
 `TypeError: this._instance.render is not a function`
 
-We have not got a `render` function on our component to render the `h1`
+We have not got a `render` function on our component to render the `h1`. When you instantiate a component in React it will try and run the `render` function to well... render. There are other circumstances where `render` is called which you'll learn later.
 
 ## Write enough code to make it pass
 
@@ -317,7 +317,7 @@ This is _ok_, but it's not very typesafe. If you have a well configured editor/I
 
 The problem we have is our state doesn't have a well defined type. We _know_ it only ever holds a `name` field but it's not documented in our code. Someone can hypothetically make a typo typing `name` and introduce bugs. Plus our autocomplete does not work. 
 
-What we can do is more strictly define the type of our shape when we define our component
+What we can do is more strictly state the "shape" of our state when we define our component
 
 ```typescript
 export class HelloWorld extends React.Component<any, {name: string}>
@@ -379,7 +379,7 @@ export class HelloWorld extends React.Component<any, HelloState> {
 }
 ```
 
-- `initialHelloState` describes how we want our initial default state to be. It's not hidden in a ternary operator inside the `render` method. This alone is an improvement from before!
+- `initialHelloState` describes how we want our initial default state to be. It's not hidden in a ternary operator inside the `render` method. This alone is an improvement from before! Think about separation of concerns; it's preferable that `render` is only concerned with rendering simple data.
 - An interesting feature of Typescript is you can derive types from data structures rather than always having to define them upfront. So `type HelloState = Readonly<typeof initialHelloState>` defines our type for our state which we then use when we define our `HelloWorld` component.
 - The `state` field in a React component is read-only for very good reasons. You should only try to change state via `setState` which will then kick off the component cycle for you (such as `render`). What we are doing with `readonly state: HelloState = initialHelloState;` is making sure from our TS code's perspective that state is readonly and that it's initial value is the one we want.
 - Now in `render` we can reliably read `this.state.name` and not have our code cluttered with null checks.
@@ -410,6 +410,6 @@ export const HelloWorld: FC = () => {
 }
 ```
 
-- We import `FC` or `FunctionComponent` which describes a function that returns a React component
+- We import `FC` or `FunctionComponent` which describes a function that returns a React component rather than using a class
 - We import `useState` which we use to create our state of type `HelloProps` for this instance of the component. It returns us two things, the current `state` and a `setState` function. 
 - That's it!
